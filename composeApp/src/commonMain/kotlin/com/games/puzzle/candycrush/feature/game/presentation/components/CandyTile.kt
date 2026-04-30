@@ -2,6 +2,7 @@ package com.games.puzzle.candycrush.feature.game.presentation.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.games.puzzle.candycrush.core.designsystem.colors.AppColors
 import com.games.puzzle.candycrush.feature.game.domain.model.Candy
 import com.games.puzzle.candycrush.feature.game.domain.model.CandyType
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun CandyTile(
@@ -44,7 +46,11 @@ fun CandyTile(
             .clip(RoundedCornerShape(10.dp))
             .background(AppColors.CellBackground)
             .then(
-                if (isSelected) Modifier.border(3.dp, AppColors.SelectionRing, RoundedCornerShape(10.dp))
+                if (isSelected) Modifier.border(
+                    3.dp,
+                    AppColors.SelectionRing,
+                    RoundedCornerShape(10.dp)
+                )
                 else Modifier
             )
             .clickable(enabled = candy != null, onClick = onClick),
@@ -66,7 +72,12 @@ fun CandyTile(
                     .background(
                         Brush.radialGradient(colors = listOf(light, dark)),
                     ),
-            )
+            ) {
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = painterResource(candy.type.icon), contentDescription = null
+                )
+            }
         }
     }
 }

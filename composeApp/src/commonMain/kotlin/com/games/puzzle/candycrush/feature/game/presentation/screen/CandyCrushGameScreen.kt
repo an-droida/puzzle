@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,7 +39,9 @@ fun CandyCrushGameScreen(viewModel: GameViewModel) {
                 Brush.verticalGradient(
                     colors = listOf(AppColors.TopBarBackground, AppColors.BoardBackground),
                 ),
-            ),
+            )
+            .navigationBarsPadding()
+            .statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         GameTopBar(
@@ -72,8 +76,21 @@ fun CandyCrushGameScreen(viewModel: GameViewModel) {
             animationTurnId = state.animationTurnId,
             pendingAnimationEvents = state.pendingAnimationEvents,
             onCandyClicked = { cell -> viewModel.onEvent(GameUiEvent.CandyClicked(cell)) },
-            onCandySwiped = { from, direction -> viewModel.onEvent(GameUiEvent.CandySwiped(from, direction)) },
-            onAnimationsFinished = { turnId -> viewModel.onEvent(GameUiEvent.AnimationsFinished(turnId)) },
+            onCandySwiped = { from, direction ->
+                viewModel.onEvent(
+                    GameUiEvent.CandySwiped(
+                        from,
+                        direction
+                    )
+                )
+            },
+            onAnimationsFinished = { turnId ->
+                viewModel.onEvent(
+                    GameUiEvent.AnimationsFinished(
+                        turnId
+                    )
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)

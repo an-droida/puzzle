@@ -10,6 +10,7 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.background
@@ -51,6 +52,7 @@ import kotlin.ranges.coerceIn
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun AnimatedCandyTile(
@@ -292,20 +294,27 @@ fun AnimatedCandyTile(
             },
         contentAlignment = Alignment.Center,
     ) {
-        val (dark, light) = candyColors(candy.type)
+        val color = candyColors2(candy.type)
+//        val (dark, light) = candyColors(candy.type)
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(6.dp)
-                .shadow(
-                    elevation = if (isSelected) 8.dp else 4.dp,
-                    shape = CircleShape,
-                    ambientColor = dark.copy(alpha = 0.6f),
-                    spotColor = dark.copy(alpha = 0.6f),
-                )
-                .clip(CircleShape)
-                .background(Brush.radialGradient(colors = listOf(light, dark))),
-        )
+//                .padding(2.dp)
+//                .shadow(
+//                    elevation = if (isSelected) 8.dp else 4.dp,
+//                    shape = CircleShape,
+//                    ambientColor = dark.copy(alpha = 0.6f),
+//                    spotColor = dark.copy(alpha = 0.6f),
+//                )
+//                .clip(CircleShape)
+                .background(color),
+//                .background(Brush.radialGradient(colors = listOf(light, dark))),
+        ){
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                painter = painterResource(candy.type.icon), contentDescription = null
+            )
+        }
     }
 }
 
@@ -316,6 +325,14 @@ private fun candyColors(type: CandyType): Pair<Color, Color> = when (type) {
     CandyType.GREEN -> AppColors.CandyGreen to AppColors.CandyGreenLight
     CandyType.BLUE -> AppColors.CandyBlue to AppColors.CandyBlueLight
     CandyType.PURPLE -> AppColors.CandyPurple to AppColors.CandyPurpleLight
+}
+private fun candyColors2(type: CandyType): Color = when (type) {
+    CandyType.RED ->  AppColors.CandyRed
+    CandyType.ORANGE -> AppColors.CandyOrange
+    CandyType.YELLOW -> AppColors.CandyYellow
+    CandyType.GREEN -> AppColors.CandyGreen
+    CandyType.BLUE ->  AppColors.CandyBlueLight
+    CandyType.PURPLE ->  AppColors.CandyPurple
 }
 
 
