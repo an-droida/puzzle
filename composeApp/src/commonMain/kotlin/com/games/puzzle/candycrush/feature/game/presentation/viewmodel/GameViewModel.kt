@@ -17,6 +17,7 @@ import com.games.puzzle.candycrush.feature.game.domain.usecase.ResolveBoardUseCa
 import com.games.puzzle.candycrush.feature.game.domain.usecase.SelectCandyUseCase
 import com.games.puzzle.candycrush.feature.game.domain.usecase.SwapCandiesUseCase
 import com.games.puzzle.candycrush.feature.game.presentation.event.GameUiEvent
+import com.games.puzzle.candycrush.feature.game.presentation.gesture.neighbor
 import com.candycrush.feature.game.presentation.state.GameUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,26 +32,80 @@ class GameViewModel : ViewModel() {
 
     private var internalState: GameState = repository.createGame(config)
 
+    private var pendingTurnId: Long? = null
+    private var pendingFinalState: GameState? = null
+    private var turnIdCounter: Long = 1L
+
     private val _uiState = MutableStateFlow(internalState.toUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
     fun onEvent(event: GameUiEvent) {
         viewModelScope.launch {
             when (event) {
-                is GameUiEvent.OnCellTapped -> handleCellTap(event.row, event.col)
-                is GameUiEvent.OnRestartTapped -> handleRestart()
-                is GameUiEvent.OnDismissDialog -> Unit
+                is GameUiEvent.CandyClicked -> handleCandyClick(event.cell.row, event.cell.col)
+                is GameUiEvent.CandySwiped -> handleCandySwipe(event.from.row, event.from.col, event.direction)
+                is GameUiEvent.RestartClicked -> handleRestart()
+                is GameUiEvent.AnimationsFinished -> handleAnimationsFinished(event.turnId)
             }
         }
     }
 
-    private fun handleCellTap(row: Int, col: Int) {
+    private fun handleCandyClick(row: Int, col: Int) {
+        if (_uiState.value.isBoardLocked) return
         if (internalState.status != GameStatus.Playing) return
+
         internalState = repository.processSelection(internalState, row, col)
         _uiState.update { internalState.toUiState() }
     }
 
+    private fun handleCandySwipe(fromRow: Int, fromCol: Int, direction: com.games.puzzle.candycrush.feature.game.presentation.gesture.SwipeDirection) {
+        if (_uiState.value.isBoardLocked) return
+        if (internalState.status != GameStatus.Playing) return
+
+        val from = com.games.puzzle.candycrush.feature.game.domain.model.Cell(row = fromRow, col = fromCol, candy = null)
+        val to = from.neighbor(direction)
+        if (!internalState.board.isValidPosition(to.row, to.col)) return
+
+        // Clear selection immediately (presentation only) and lock the board.
+        internalState = internalState.copy(selectedCell = null)
+
+        val result = repository.processSwipe(
+            state = internalState,
+            fromRow = fromRow,
+            fromCol = fromCol,
+            toRow = to.row,
+            toCol = to.col,
+        )
+
+        val turnId = turnIdCounter++
+        pendingTurnId = turnId
+        pendingFinalState = result.finalState
+
+        _uiState.update {
+            it.copy(
+                selectedPosition = null,
+                isProcessing = true,
+                isBoardLocked = true,
+                animationTurnId = turnId,
+                pendingAnimationEvents = result.events,
+            )
+        }
+    }
+
+    private fun handleAnimationsFinished(turnId: Long) {
+        if (pendingTurnId != turnId) return
+        val finalState = pendingFinalState ?: return
+
+        pendingTurnId = null
+        pendingFinalState = null
+
+        internalState = finalState
+        _uiState.update { internalState.toUiState() }
+    }
+
     private fun handleRestart() {
+        pendingTurnId = null
+        pendingFinalState = null
         internalState = repository.restartGame(internalState)
         _uiState.update { internalState.toUiState() }
     }
@@ -63,6 +118,9 @@ class GameViewModel : ViewModel() {
         status = status,
         targetScore = config.targetScore,
         isProcessing = false,
+        isBoardLocked = false,
+        animationTurnId = 0L,
+        pendingAnimationEvents = emptyList(),
     )
 
     private fun buildRepository(): GameRepository {

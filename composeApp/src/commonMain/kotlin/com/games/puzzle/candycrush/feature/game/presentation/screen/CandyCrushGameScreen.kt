@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import com.games.puzzle.candycrush.core.designsystem.colors.AppColors
 import com.games.puzzle.candycrush.core.designsystem.spacing.AppSpacing
-import com.games.puzzle.candycrush.feature.game.presentation.components.CandyBoard
+import com.games.puzzle.candycrush.feature.game.presentation.components.AnimatedCandyBoard
 import com.games.puzzle.candycrush.feature.game.presentation.components.GameStatusDialog
 import com.games.puzzle.candycrush.feature.game.presentation.components.GameTopBar
 import com.games.puzzle.candycrush.feature.game.presentation.components.MovesCounter
@@ -41,7 +41,7 @@ fun CandyCrushGameScreen(viewModel: GameViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         GameTopBar(
-            onRestartClick = { viewModel.onEvent(GameUiEvent.OnRestartTapped) },
+            onRestartClick = { viewModel.onEvent(GameUiEvent.RestartClicked) },
         )
 
         Spacer(modifier = Modifier.height(AppSpacing.md))
@@ -65,10 +65,15 @@ fun CandyCrushGameScreen(viewModel: GameViewModel) {
 
         Spacer(modifier = Modifier.height(AppSpacing.md))
 
-        CandyBoard(
+        AnimatedCandyBoard(
             board = state.board,
             selectedPosition = state.selectedPosition,
-            onCellClick = { row, col -> viewModel.onEvent(GameUiEvent.OnCellTapped(row, col)) },
+            isBoardLocked = state.isBoardLocked,
+            animationTurnId = state.animationTurnId,
+            pendingAnimationEvents = state.pendingAnimationEvents,
+            onCandyClicked = { cell -> viewModel.onEvent(GameUiEvent.CandyClicked(cell)) },
+            onCandySwiped = { from, direction -> viewModel.onEvent(GameUiEvent.CandySwiped(from, direction)) },
+            onAnimationsFinished = { turnId -> viewModel.onEvent(GameUiEvent.AnimationsFinished(turnId)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
@@ -82,6 +87,6 @@ fun CandyCrushGameScreen(viewModel: GameViewModel) {
         status = state.status,
         score = state.score,
         targetScore = state.targetScore,
-        onRestart = { viewModel.onEvent(GameUiEvent.OnRestartTapped) },
+        onRestart = { viewModel.onEvent(GameUiEvent.RestartClicked) },
     )
 }
