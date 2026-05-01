@@ -255,15 +255,6 @@ fun AnimatedCandyTile(
     }
 }
 
-private fun candyColors(type: CandyType): Pair<Color, Color> = when (type) {
-    CandyType.RED -> AppColors.CandyRed to AppColors.CandyRedLight
-    CandyType.ORANGE -> AppColors.CandyOrange to AppColors.CandyOrangeLight
-    CandyType.YELLOW -> AppColors.CandyYellow to AppColors.CandyYellowLight
-    CandyType.GREEN -> AppColors.CandyGreen to AppColors.CandyGreenLight
-    CandyType.BLUE -> AppColors.CandyBlue to AppColors.CandyBlueLight
-    CandyType.PURPLE -> AppColors.CandyPurple to AppColors.CandyPurpleLight
-}
-
 private fun candyColors2(type: CandyType): Color = when (type) {
     CandyType.RED -> AppColors.CandyRed
     CandyType.ORANGE -> AppColors.CandyOrange
