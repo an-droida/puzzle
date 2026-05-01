@@ -10,8 +10,8 @@ object AppSpacing {
     val xl = 32.dp
     val xxl = 48.dp
 
-    val cellGap = 3.dp
-    val boardPadding = 8.dp
-    val cardRadius = 16.dp
-    val candyRadius = 50.dp
+    val candyGap = 1.dp
+    val boardPadding = 4.dp
+    val cardRadius = 12.dp
+    val candyTileRadius = 6.dp
 }

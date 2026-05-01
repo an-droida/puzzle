@@ -28,7 +28,6 @@ import com.games.puzzle.candycrush.feature.game.presentation.gesture.SwipeDirect
 @Composable
 fun AnimatedCandyBoard(
     board: Board,
-    selectedPosition: Pair<Int, Int>?,
     isBoardLocked: Boolean,
     animationTurnId: Long,
     pendingAnimationEvents: List<CandyAnimationEvent>,
@@ -87,18 +86,23 @@ fun AnimatedCandyBoard(
                             val cell = renderedBoard.getCell(row, col)
                             val candy = cell.candy ?: continue
 
-                            val isSelected = selectedPosition?.first == row && selectedPosition.second == col
-
                             androidx.compose.runtime.key(candy.id) {
                                 AnimatedCandyTile(
                                     candy = candy,
                                     cell = cell,
                                     cellSize = cellSizeDp,
                                     boardSize = renderedBoard.size,
-                                    isSelected = isSelected,
                                     isBoardLocked = isBoardLocked,
                                     animationState = animationState,
-                                    onClick = { onCandyClicked(Cell(row = row, col = col, candy = null)) },
+                                    onClick = {
+                                        onCandyClicked(
+                                            Cell(
+                                                row = row,
+                                                col = col,
+                                                candy = null
+                                            )
+                                        )
+                                    },
                                     onSwipe = { from, dir -> onCandySwiped(from, dir) },
                                 )
                             }

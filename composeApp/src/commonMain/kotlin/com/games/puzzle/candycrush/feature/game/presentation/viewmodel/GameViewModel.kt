@@ -2,6 +2,7 @@ package com.games.puzzle.candycrush.feature.game.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.candycrush.feature.game.presentation.state.GameUiState
 import com.games.puzzle.candycrush.feature.game.data.datasource.GameDataSource
 import com.games.puzzle.candycrush.feature.game.data.repository.GameRepositoryImpl
 import com.games.puzzle.candycrush.feature.game.domain.model.GameConfig
@@ -18,7 +19,6 @@ import com.games.puzzle.candycrush.feature.game.domain.usecase.SelectCandyUseCas
 import com.games.puzzle.candycrush.feature.game.domain.usecase.SwapCandiesUseCase
 import com.games.puzzle.candycrush.feature.game.presentation.event.GameUiEvent
 import com.games.puzzle.candycrush.feature.game.presentation.gesture.neighbor
-import com.candycrush.feature.game.presentation.state.GameUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,7 +43,12 @@ class GameViewModel : ViewModel() {
         viewModelScope.launch {
             when (event) {
                 is GameUiEvent.CandyClicked -> handleCandyClick(event.cell.row, event.cell.col)
-                is GameUiEvent.CandySwiped -> handleCandySwipe(event.from.row, event.from.col, event.direction)
+                is GameUiEvent.CandySwiped -> handleCandySwipe(
+                    event.from.row,
+                    event.from.col,
+                    event.direction
+                )
+
                 is GameUiEvent.RestartClicked -> handleRestart()
                 is GameUiEvent.AnimationsFinished -> handleAnimationsFinished(event.turnId)
             }
@@ -58,11 +63,19 @@ class GameViewModel : ViewModel() {
         _uiState.update { internalState.toUiState() }
     }
 
-    private fun handleCandySwipe(fromRow: Int, fromCol: Int, direction: com.games.puzzle.candycrush.feature.game.presentation.gesture.SwipeDirection) {
+    private fun handleCandySwipe(
+        fromRow: Int,
+        fromCol: Int,
+        direction: com.games.puzzle.candycrush.feature.game.presentation.gesture.SwipeDirection
+    ) {
         if (_uiState.value.isBoardLocked) return
         if (internalState.status != GameStatus.Playing) return
 
-        val from = com.games.puzzle.candycrush.feature.game.domain.model.Cell(row = fromRow, col = fromCol, candy = null)
+        val from = com.games.puzzle.candycrush.feature.game.domain.model.Cell(
+            row = fromRow,
+            col = fromCol,
+            candy = null
+        )
         val to = from.neighbor(direction)
         if (!internalState.board.isValidPosition(to.row, to.col)) return
 
@@ -83,7 +96,6 @@ class GameViewModel : ViewModel() {
 
         _uiState.update {
             it.copy(
-                selectedPosition = null,
                 isProcessing = true,
                 isBoardLocked = true,
                 animationTurnId = turnId,
@@ -114,7 +126,6 @@ class GameViewModel : ViewModel() {
         board = board,
         score = score,
         movesRemaining = movesRemaining,
-        selectedPosition = selectedCell,
         status = status,
         targetScore = config.targetScore,
         isProcessing = false,

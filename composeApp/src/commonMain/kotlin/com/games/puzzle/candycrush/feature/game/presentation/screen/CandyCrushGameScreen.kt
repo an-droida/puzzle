@@ -71,7 +71,6 @@ fun CandyCrushGameScreen(viewModel: GameViewModel) {
 
         AnimatedCandyBoard(
             board = state.board,
-            selectedPosition = state.selectedPosition,
             isBoardLocked = state.isBoardLocked,
             animationTurnId = state.animationTurnId,
             pendingAnimationEvents = state.pendingAnimationEvents,
@@ -94,7 +93,7 @@ fun CandyCrushGameScreen(viewModel: GameViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(AppSpacing.sm),
+                .padding(AppSpacing.xs),
         )
 
         Spacer(modifier = Modifier.height(AppSpacing.md))
